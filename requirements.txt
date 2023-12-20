@@ -1,0 +1,10 @@
+Flask 
+Flask-SocketIO 
+pymongo 
+redis
+Flask-Redis
+gevent
+gevent-websocket
+Flask-CORS
+aiohttp==3.9.0b0
+python-dotenv
