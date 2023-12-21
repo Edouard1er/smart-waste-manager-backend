@@ -5,6 +5,8 @@ from dotenv import dotenv_values
 from icecream import colorize, ic
 from pymongo import MongoClient
 
+from backend.Database import Database
+
 NAME_DB = "hackaton"
 
 
@@ -13,18 +15,18 @@ def main():
         outputFunction=lambda s: print(colorize(s) + "\n")
     )  # print debug
 
-    db = get_database(NAME_DB)
+    db = Database(NAME_DB)
+    ic(db)
 
     path_to_root = Path(__file__) / ".." / ".." / ".."
     path_to_root = path_to_root.resolve()
-    
+
     path_to_data = path_to_root / "data"
-    
+
     ic(path_to_data)
-    
-    df_poubelles = pd.read_excel(path_to_data/ "taux_remplissage_comcom_nebbiu.xlsx")
+
+    df_poubelles = pd.read_excel(path_to_data / "taux_remplissage_comcom_nebbiu.xlsx")
     ic(df_poubelles)
-    
 
 
 def get_database(db_name):
@@ -56,6 +58,5 @@ def get_database(db_name):
     return client[db_name]
 
 
-# This is added so that many files can reuse the function get_database()
 if __name__ == "__main__":
     main()
