@@ -24,8 +24,22 @@ def main():
     excel_sheet_names, df = get_initial_data()
 
     for key, value in df.items():
-        for row in value.iterrows():
-            print("a")
+        name_zone = excel_sheet_names[key]
+        # key_zone = Database.add_data_zone(nom=name_zone)
+
+        # key_poubelle = Database.add_data_poubelle
+
+        for row in value.iloc[:, 2:].iterrows():
+            row = row[1]
+
+            for i in range(0, len(row), 3):
+                coeff_touriste = row[i + 2]
+                remplissage = row[i + 1]
+                ic(coeff_touriste)
+                ic(remplissage)
+
+            # db.add_data_poubelle(id_zone=key_zone)
+            # db.add_data_historique_poubelle
 
 
 def get_initial_data():
