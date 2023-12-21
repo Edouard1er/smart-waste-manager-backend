@@ -33,7 +33,7 @@ def main():
     path_to_root = Path(__file__) / ".." / ".." / ".."
     path_to_root = path_to_root.resolve()
     path_to_data = path_to_root / "data"
-    ic(path_to_data)
+
     db = Database()
     insert_data(db, path_to_data / "taux_remplissage_comcom_nebbiu.xlsx")
 
@@ -44,33 +44,25 @@ def insert_data(db, path):
 
     zone_nom_to_id = {}
     for key, value in df_sheets.items():
+        print(f"inserting {key}")
         zone = key.strip().capitalize()
 
         num_habitant = ZONE_TO_POP[zone]
         zone_nom_to_id[zone] = db.add_data_zone(
             nom=zone, gps=None, densite=num_habitant, nb_poubelles=None
         )
+        list_ids_poubelles = []
+        for i, row in value.iterrows():
+            print(f"insert {i} / {len(value)}")
 
-        for i, row in value.iloc[:, :6].iterrows():
             date = row.iloc[1]  # noqa: F841
-            list_ids_poubelles = []
+
             for j in range(2, len(row), 3):
                 num_poubelle = int((j - 2) / 3)
                 coeff_touriste = row.iloc[j + 2]
 
                 if i == 0:
                     gps = row.iloc[j]
-                    poubelle_nom = str(key) + "-poubelle-" + str(num_poubelle)
-                    print("insert :")
-                    ic(
-                        zone_nom_to_id[zone].inserted_id,
-                        num_habitant,
-                        gps,
-                        num_poubelle,
-                        poubelle_nom,
-                        coeff_touriste,
-                    )
-
                     list_ids_poubelles.append(
                         db.add_data_poubelle(
                             id_zone=zone_nom_to_id[zone].inserted_id,
@@ -82,14 +74,12 @@ def insert_data(db, path):
                     )
 
                 remplissage = row.iloc[j + 1]  # noqa: F841
-
-                db.add_data_historiquePoubelle(
-                    id_poubelle=list_ids_poubelles[num_poubelle],
+                db.add_data_historique(
+                    id_poubelle=list_ids_poubelles[num_poubelle].inserted_id,
                     niveau_remplissage=remplissage,
                     coef_tourist=coeff_touriste,
                     date=date,
                 )
-                # db.add_data_historique(list_ids_poubelles[num_poubelle], coeff_touriste, date, remplissage)
 
 
 if __name__ == "__main__":

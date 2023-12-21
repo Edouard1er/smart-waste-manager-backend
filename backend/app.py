@@ -44,30 +44,35 @@ def get_data_historique():
     return jsonify({"historique": historique_list})
 
 
-@app.route('/historique/<historique_id>', methods=['GET'])
+@app.route("/historique/<historique_id>", methods=["GET"])
 def get_data_historique_by_id(id):
     historique = myDb.get_data_historique_by_id(id)
     if historique:
-        historique['_id'] = str(historique['_id'])
-        return jsonify({'historique': historique})
-    return jsonify({'message': 'Historique non trouvé'}), 404
+        historique["_id"] = str(historique["_id"])
+        return jsonify({"historique": historique})
+    return jsonify({"message": "Historique non trouvé"}), 404
 
-@app.route('/historique/<historique_id>', methods=['PUT'])
+
+@app.route("/historique/<historique_id>", methods=["PUT"])
 def update_historique(historique_id):
     data = request.json
     update_historique = myDb.update_data_historique(
         historique_id,
-        data.get('id_poubelle'),
-        data.get('coef_touristes'),
-        data.get('date'),
-        data.get('niveau_remplissage')
+        data.get("id_poubelle"),
+        data.get("coef_touristes"),
+        data.get("date"),
+        data.get("niveau_remplissage"),
     )
     if update_historique.modified_count > 0:
-        return jsonify({'message': 'Historique mis à jour avec succès'})
-    return jsonify({'message': 'Historique non trouvé ou aucune modification effectuée'}), 404
+        return jsonify({"message": "Historique mis à jour avec succès"})
+    return (
+        jsonify({"message": "Historique non trouvé ou aucune modification effectuée"}),
+        404,
+    )
 
-#Endpoint pour supprimer l'historique des collectes
-@app.route('/historique/<historique_id>', methods=['DELETE'])
+
+# Endpoint pour supprimer l'historique des collectes
+@app.route("/historique/<historique_id>", methods=["DELETE"])
 def delete_historique(historique_id):
     result = myDb.delete_data_historique(historique_id)
     if result.deleted_count > 0:
@@ -99,41 +104,47 @@ def delete_trajet(trajet_id):
     return jsonify({"message": "Trajet non trouvé"}), 404
 
 
-@app.route('/trajets/<trajet_id>', methods=['PUT'])
+@app.route("/trajets/<trajet_id>", methods=["PUT"])
 def update_trajet(trajet_id):
     data = request.json
     update_trajet = myDb.update_data_trajet(
         trajet_id,
-        data.get('id_collecteur'),
-        data.get('id_poubelle'),
-        data.get('date'),
-        data.get('niveau_remplissage')
+        data.get("id_collecteur"),
+        data.get("id_poubelle"),
+        data.get("date"),
+        data.get("niveau_remplissage"),
     )
     if insert_trajet:
-        return jsonify({'message': 'Trajet ajouté avec succès'})
-    return jsonify({'message': 'Erreur lors de l\'ajout du trajet'}), 500
+        return jsonify({"message": "Trajet ajouté avec succès"})
+    return jsonify({"message": "Erreur lors de l'ajout du trajet"}), 500
 
-#Endpoint pour supprimer les trajets
-@app.route('/trajets/<trajet_id>', methods=['DELETE'])
+
+# Endpoint pour supprimer les trajets
+@app.route("/trajets/<trajet_id>", methods=["DELETE"])
 def delete_trajet(trajet_id):
     result = myDb.delete_data_trajet(trajet_id)
     if result.deleted_count > 0:
-        return jsonify({'message': 'Trajet supprimé avec succès'})
-    return jsonify({'message': 'Trajet non trouvé'}), 404
+        return jsonify({"message": "Trajet supprimé avec succès"})
+    return jsonify({"message": "Trajet non trouvé"}), 404
 
-@app.route('/trajets/<trajet_id>', methods=['PUT'])
+
+@app.route("/trajets/<trajet_id>", methods=["PUT"])
 def update_trajet(trajet_id):
     data = request.json
     update_trajet = myDb.update_data_trajet(
         trajet_id,
-        data.get('id_collecteur'),
-        data.get('id_poubelle'),
-        data.get('date'),
-        data.get('niveau_remplissage')
+        data.get("id_collecteur"),
+        data.get("id_poubelle"),
+        data.get("date"),
+        data.get("niveau_remplissage"),
     )
     if update_trajet.modified_count > 0:
-        return jsonify({'message': 'Trajet mis à jour avec succès'})
-    return jsonify({'message': 'Trajet non trouvé ou aucune modification effectuée'}), 404
+        return jsonify({"message": "Trajet mis à jour avec succès"})
+    return (
+        jsonify({"message": "Trajet non trouvé ou aucune modification effectuée"}),
+        404,
+    )
+
 
 # Endpoint pour recuperer les trajets
 @app.route("/trajets", methods=["GET"])
@@ -146,21 +157,23 @@ def get_data_trajets():
     return jsonify({"trajets": trajets_list})
 
 
-@app.route('/trajets/<trajet_id>', methods=['GET'])
+@app.route("/trajets/<trajet_id>", methods=["GET"])
 def get_data_trajet_by_id(id):
     trajet = myDb.get_data_trajet_by_id(id)
     if trajet:
-        trajet['_id'] = str(trajet['_id'])
+        trajet["_id"] = str(trajet["_id"])
         trajets_list.append(trajet)
-    return jsonify({'trajets': trajets_list})
+    return jsonify({"trajets": trajets_list})
 
-@app.route('/trajets/<trajet_id>', methods=['GET'])
+
+@app.route("/trajets/<trajet_id>", methods=["GET"])
 def get_data_trajet_by_id(id):
     trajet = myDb.get_data_trajet_by_id(id)
     if trajet:
-        trajet['_id'] = str(trajet['_id'])
-        return jsonify({'trajet': trajet})
-    return jsonify({'message': 'Trajet non trouvé'}), 404
+        trajet["_id"] = str(trajet["_id"])
+        return jsonify({"trajet": trajet})
+    return jsonify({"message": "Trajet non trouvé"}), 404
+
 
 # Endpoint pour ajouter une zone
 @app.route("/zones", methods=["POST"])
@@ -204,10 +217,10 @@ def update_zone(zone_id):
     data = request.json
     update_zone = myDb.update_data_zone(
         zone_id,
-        data.get('nom'),
-        data.get('densite'),
-        data.get('gps'),
-        data.get('nb_poubelles')
+        data.get("nom"),
+        data.get("densite"),
+        data.get("gps"),
+        data.get("nb_poubelles"),
     )
     if update_zone.modified_count > 0:
         return jsonify({"message": "Zone mis à jour avec succès"})
@@ -255,7 +268,7 @@ def get_poubelles(zone_id):
 # Endpoint pour obtenur les informations d'une poubelle donnée
 @app.route("/poubelles", methods=["GET"])
 # Endpoint pour obtenur la liste des poubelles
-@app.route('/poubelles', methods=['GET'])
+@app.route("/poubelles", methods=["GET"])
 def get_all_poubelles():
     poubelles = myDb.get_data_poubelle()
 
@@ -278,9 +291,9 @@ def update_poubelle(poubelle_id):
     data = request.json
     update_poubelle = myDb.update_data_poubelle(
         poubelle_id,
-        data.get('coefficient_touriste'),
-        data.get('densite'),
-        data.get('next_collection_date')
+        data.get("coefficient_touriste"),
+        data.get("densite"),
+        data.get("next_collection_date"),
     )
     if update_poubelle.modified_count > 0:
         return jsonify({"message": "Poubelle mis à jour avec succès"})
@@ -340,7 +353,7 @@ def get_collecteur(collecteur_id):
     return jsonify({"message": "Collecteur non trouvé"}), 404
 
 
-@app.route('/collecteurs/zone/<id_zone>', methods=['GET'])
+@app.route("/collecteurs/zone/<id_zone>", methods=["GET"])
 def get_data_collecteur_by_zone(id_zone):
     collecteur = myDb.get_data_collecteur_by_zone(id_zone)
     if collecteur:
@@ -349,13 +362,14 @@ def get_data_collecteur_by_zone(id_zone):
     return jsonify({"message": "Collecteur non trouvé"}), 404
 
 
-@app.route('/collecteurs/zone/<id_zone>', methods=['GET'])
+@app.route("/collecteurs/zone/<id_zone>", methods=["GET"])
 def get_data_collecteur_by_zone(id_zone):
     collecteur = myDb.get_data_collecteur_by_zone(id_zone)
     if collecteur:
-        collecteur['_id'] = str(collecteur['_id'])
-        return jsonify({'collecteur': collecteur})
-    return jsonify({'message': 'Collecteur non trouvé'}), 404
+        collecteur["_id"] = str(collecteur["_id"])
+        return jsonify({"collecteur": collecteur})
+    return jsonify({"message": "Collecteur non trouvé"}), 404
+
 
 # Endpoint pour update un collecteur specifiques
 @app.route("/collecteurs/<collecteur_id>", methods=["PUT"])
@@ -363,12 +377,12 @@ def update_collecteur(collecteur_id):
     data = request.json
     updated_data = myDb.update_data_collecteur(
         collecteur_id,
-        data.get('matricule'),
-        data.get('nom'),
-        data.get('prenom'),
-        data.get('username'),
-        data.get('password'),
-        data.get('role'),
+        data.get("matricule"),
+        data.get("nom"),
+        data.get("prenom"),
+        data.get("username"),
+        data.get("password"),
+        data.get("role"),
     )
     if updated_data.modified_count > 0:
         return jsonify({"message": "Collecteur mis à jour avec succès"})

@@ -80,7 +80,7 @@ class Database:
         return key
 
     def add_data_historique(self, id_poubelle, coef_tourist, date, niveau_remplissage):
-        collection = self.client.historique
+        collection = self.client.historiquePoubelle
 
         # Création du document
         document = {
