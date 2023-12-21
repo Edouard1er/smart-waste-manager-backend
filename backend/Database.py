@@ -42,29 +42,30 @@ class Database:
         key = collection.insert_one(document)
         return key
     
-    def add_data_collecteur(self, id_zone, matricule, nom, username, password, role):
+    def add_data_collecteur(self, matricule, nom,prenom, username, password, role):
         collection = self.client.collecteur
         
         # Création du document
         document = {
-            "id_zone": id_zone,
             "matricule": matricule,
             "nom": nom,
+            "prenom": prenom,
             "username": username,
             "password": password,
             "role": role
+            
         }
 
         # Insertion du document dans la collection
         key = collection.insert_one(document)
         return key      
     
-    def add_data_zone(self, id_zone, gps, densite, nb_poubelles):
+    def add_data_zone(self, nom, gps, densite, nb_poubelles):
         collection = self.client.zone
         
         # Création du document
         document = {
-            "id_zone": id_zone,
+            "nom": nom,
             "gps": gps,
             "densite": densite,
             "nb_poubelles": nb_poubelles
@@ -74,6 +75,36 @@ class Database:
         key = collection.insert_one(document)
         return key
     
+    def add_data_historique(self, id_poubelle, coef_tourist, date, niveau_remplissage):
+        collection = self.client.historique
+        
+        # Création du document
+        document = {
+            "id_poubelle": id_poubelle,
+            "coef_touristes": coef_tourist,
+            "date": date,
+            "niveau_remplissage": niveau_remplissage
+        }
+
+        # Insertion du document dans la collection
+        key = collection.insert_one(document)
+        return key
+    
+    def add_data_trajet(self, id_collecteur, id_poubelle, date, niveau_remplissage):
+        collection = self.client.trajet
+        
+        # Création du document
+        document = {
+            "id_collecteur": id_collecteur,
+            "id_poubelle": id_poubelle,
+            "date": date,
+            "niveau_remplissage": niveau_remplissage
+        }
+
+        # Insertion du document dans la collection
+        key = collection.insert_one(document)
+        return key
+
     def get_data_poubelle(self):
         collection = self.client.poubelle
         return collection.find()
@@ -83,7 +114,12 @@ class Database:
     def get_data_collecteur(self):
         collection = self.client.collecteur
         return collection.find()
-        
+    def get_data_historique(self):
+        collection = self.client.historique
+        return collection.find()
+    def get_data_trajet(self):
+        collection = self.client.trajet
+        return collection.find()    
 
     
     def get_data_poubelle_by_id(self, id):
@@ -95,9 +131,13 @@ class Database:
     def get_data_collecteur_by_id(self, id):
         collection = self.client.collecteur
         return collection.find_one({"_id": id})
-    
+    def get_data_historique_by_id(self, id):
+        collection = self.client.historique
+        return collection.find_one({"_id": id})
+    def get_data_trajet_by_id(self, id):
+        collection = self.client.trajet
+        return collection.find_one({"_id": id})
 
-    
     def update_data_poubelle(self, id, coef_tourist, densite, next_collection_date):
         collection = self.client.poubelle
         
@@ -111,11 +151,12 @@ class Database:
         # Insertion du document dans la collection
         key = collection.update_one({"_id": id}, {"$set": document})
         return key
-    def update_data_zone(self, id, gps, densite, nb_poubelles):
+    def update_data_zone(self, id, nom ,gps, densite, nb_poubelles):
         collection = self.client.zone
         
         # Création du document
         document = {
+            "nom": nom, 
             "gps": gps,
             "densite": densite,
             "nb_poubelles": nb_poubelles
@@ -124,13 +165,14 @@ class Database:
         # Insertion du document dans la collection
         key = collection.update_one({"_id": id}, {"$set": document})
         return key
-    def update_data_collecteur(self, id, matricule, nom, username, password, role):
+    def update_data_collecteur(self, id, matricule, nom, prenom, username, password, role):
         collection = self.client.collecteur
         
         # Création du document
         document = {
             "matricule": matricule,
             "nom": nom,
+            "prenom": prenom,
             "username": username,
             "password": password,
             "role": role
@@ -149,7 +191,14 @@ class Database:
     def delete_data_collecteur(self, id):
         collection = self.client.collecteur
         return collection.delete_one({"_id": id})
-    
+    def delete_data_historique(self, id):
+        collection = self.client.historique
+        return collection.delete_one({"_id": id})
+    def delete_data_trajet(self, id):
+        collection = self.client.trajet
+        return collection.delete_one({"_id": id})
+
+
     def get_data_poubelle_by_zone(self, id_zone):
         collection = self.client.poubelle
         return collection.find({"id_zone": id_zone})
