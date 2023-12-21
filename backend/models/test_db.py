@@ -1,5 +1,5 @@
-from icecream import ic
 import Database
+from icecream import ic
 
 
 def main():

@@ -3,13 +3,9 @@ from pathlib import Path
 import pandas as pd
 from icecream import colorize, ic
 
+from backend.Database import Database
 
-def main():
-    ic.configureOutput(
-        outputFunction=lambda s: print(colorize(s) + "\n")
-    )  # print debug
-
-    zone_to_pop = {
+ZONE_TO_POP = {
         "Olmeta di tuda": 442,
         "Rapale": 149,
         "Santu petro di tenda": 360,
@@ -28,46 +24,43 @@ def main():
         "San gavino di tenda": 68,
     }
 
+
+def main():
+    ic.configureOutput(
+        outputFunction=lambda s: print(colorize(s) + "\n")
+    )  # print debug
+
+    
+
     path_to_root = Path(__file__) / ".." / ".." / ".."
     path_to_root = path_to_root.resolve()
     path_to_data = path_to_root / "data"
     ic(path_to_data)
-    insert_data(path_to_data / "taux_remplissage_comcom_nebbiu.xlsx")
+    db = Database()
+    insert_data(db, path_to_data / "taux_remplissage_comcom_nebbiu.xlsx")
 
 
-def insert_data(path="../../data/taux_remplissage_comcom_nebbiu.xlsx"):
+def insert_data(db, path):
     excel_sheet_names = (pd.ExcelFile(path)).sheet_names
     df_sheets = pd.read_excel(path, sheet_name=excel_sheet_names, header=1)
-
-    list_result = []
 
     for key, value in df_sheets.items():
         zone = key.strip().capitalize()
         list_gps = []
         for i, row in value.iterrows():
-            flagGPS = False
-            if i == 0:
-                flagGPS = True
-
             date = row.iloc[1]
+
             for j in range(2, len(row), 3):
-                num_poubelle = int((j - 2) / 3)
-                poubelle_nom = str(key) + "-poubelle-" + str(num_poubelle)
-                if flagGPS:
-                    list_gps.append(row.iloc[j])
-                gps = list_gps[num_poubelle]
+                if i == 0:
+                    num_habitant= ZONE_TO_POP[zone]
+                    gps = row.iloc[j]
+                    poubelle_nom = str(key) + "-poubelle-" + str(num_poubelle)
+                    coeff_touriste = row.iloc[j + 2]
+                    (j - 2) / 3)
+                    
+                    ic(zone, num_habitant, gps, poubelle_nom, coeff_touriste)
+
                 remplissage = row.iloc[j + 1]
-                coeff_touriste = row.iloc[j + 2]
-
-                list_result.append(
-                    [poubelle_nom, zone, coeff_touriste, gps, date, remplissage]
-                )
-
-    df_result = pd.DataFrame(
-        list_result,
-        columns=["nom", "zone", "coeff_touriste", "gps", "date", "remplissage"],
-    )
-    return df_result
 
 
 if __name__ == "__main__":
