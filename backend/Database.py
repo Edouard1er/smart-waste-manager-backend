@@ -1,6 +1,6 @@
 from datetime import datetime
-
-
+from dotenv import dotenv_values
+from icecream import ic
 from pymongo import MongoClient
 
 
@@ -43,13 +43,13 @@ class Database:
 
         # Création du document
         document = {
+            "id_zone": id_zone,
             "matricule": matricule,
             "nom": nom,
             "prenom": prenom,
             "username": username,
             "password": password,
             "role": role,
-            "id_zone": id_zone
         }
 
         # Insertion du document dans la collection
@@ -155,7 +155,7 @@ class Database:
         # Insertion du document dans la collection
         key = collection.update_one({"_id": id}, {"$set": document})
         return key
-    def update_data_collecteur(self, id, matricule, nom, username, password, role):
+    def update_data_collecteur(self, id, matricule, nom,prenom, username, password, role):
         collection = self.client.collecteur
 
         # Création du document

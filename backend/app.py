@@ -6,13 +6,7 @@ import requests
 import os
 from pymongo import MongoClient
 import Database
-
-
-# Development settings
-CONNEXION_STRING="mongodb+srv://silvanshine:g5Kgw38pHWJEDMlO@cluster-hackaton-sitec.yhj9j2s.mongodb.net/"
-client = MongoClient(CONNEXION_STRING)
-db = client['smart-waste-manager']
-
+from Database import *
 
 
 
@@ -96,11 +90,9 @@ def add_zone():
     data = request.json
     insert_zone = Database.add_data_zone(
         data.get('nom'),
-        data.get('population'),
+        data.get('densité'),
         data.get('gps'),
-        data.get('liste_poubelles'),
-        data.get('calendrier_collecte'),
-        data.get('collecteurs')
+        data.get('nb_poubelles'),
     )
     if insert_zone:
         return jsonify({'message': 'Zone ajoutée avec succès'})
@@ -121,7 +113,7 @@ def get_zones():
 # Endpoint pour obtenir une zone spécifique
 @app.route('/zones/<zone_id>', methods=['GET'])
 def get_zone(zone_id):
-    zone = db.zones.find_one({'_id': ObjectId(zone_id)})
+    zone = Database.get_data_zone_by_id({'_id': ObjectId(zone_id)})
     if zone:
         zone['_id'] = str(zone['_id'])
         return jsonify({'zone': zone})
@@ -164,7 +156,6 @@ def add_poubelle():
         data.get('gps'),
         data.get('niveau_remplissage'),
         data.get('coefficient_touriste'),
-        data.get('etat'),
         data.get('densite_population')
     )
     if insert_poubelle:
@@ -225,7 +216,7 @@ def add_collecteur():
         data.get('prenom'),
         data.get('username'),
         data.get('password'),
-        data.get('role')
+        data.get('role'),
     )
     if insert_collecteur:
         return jsonify({'message': 'Collecteur ajouté avec succès'})

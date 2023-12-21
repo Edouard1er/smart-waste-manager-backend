@@ -1,6 +1,5 @@
 from icecream import ic
-
-from backend.Database import Database
+import Database
 
 
 def main():
