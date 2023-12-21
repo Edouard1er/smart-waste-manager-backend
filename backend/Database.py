@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from dotenv import dotenv_values
-from icecream import ic
+
 from pymongo import MongoClient
 
 
@@ -39,7 +38,7 @@ class Database:
         key = collection.insert_one(document)
         return key
     
-    def add_data_collecteur(self, id_zone, matricule, nom, username, password, role):
+    def add_data_collecteur(self, id_zone, matricule, nom,prenom, username, password, role):
         collection = self.client.collecteur
 
         # Création du document
@@ -49,14 +48,15 @@ class Database:
             "prenom": prenom,
             "username": username,
             "password": password,
-            "role": role
+            "role": role,
+            "id_zone": id_zone
         }
 
         # Insertion du document dans la collection
         key = collection.insert_one(document)
         return key      
     
-    def add_data_zone(self, id_zone, gps, densite, nb_poubelles):
+    def add_data_zone(self, nom, gps, densite, nb_poubelles):
         collection = self.client.zone
 
         # Création du document
