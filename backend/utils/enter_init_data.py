@@ -1,13 +1,7 @@
-"""insère les données initiales données dans le sujet"""
-
+from pathlib import Path
 
 import pandas as pd
 from icecream import colorize, ic
-from pathlib import Path
-
-from backend.Database import Database
-
-NAME_DB = "hackaton"
 
 
 def main():
@@ -15,25 +9,40 @@ def main():
         outputFunction=lambda s: print(colorize(s) + "\n")
     )  # print debug
 
-    db = Database()
+    zone_to_pop = {
+        "Olmeta di tuda": 442,
+        "Rapale": 149,
+        "Santu petro di tenda": 360,
+        "Barbaggio": 266,
+        "Sorio": 137,
+        "Pieve": 118,
+        "Oletta": 1_587,
+        "Saint florent": 1_634,
+        "Poggio oletta": 218,
+        "Vallecalle": 131,
+        "Rutali": 387,
+        "Farinole": 197,
+        "Murato": 625,
+        "Patrimonio": 746,
+        "Casta": 50,
+        "San gavino di tenda": 68,
+    }
+
     path_to_root = Path(__file__) / ".." / ".." / ".."
-    path_to_root= path_to_root.resolve()
-    path_to_excel = path_to_root / "data" / "taux_remplissage_comcom_nebbiu.xlsx"
-
-    df = init_excel_to_df(str(path_to_excel))
-    
-    ic(df)
+    path_to_root = path_to_root.resolve()
+    path_to_data = path_to_root / "data"
+    ic(path_to_data)
+    insert_data(path_to_data / "taux_remplissage_comcom_nebbiu.xlsx")
 
 
-
-def init_excel_to_df(path="../../data/taux_remplissage_comcom_nebbiu.xlsx"):
+def insert_data(path="../../data/taux_remplissage_comcom_nebbiu.xlsx"):
     excel_sheet_names = (pd.ExcelFile(path)).sheet_names
     df_sheets = pd.read_excel(path, sheet_name=excel_sheet_names, header=1)
 
     list_result = []
 
     for key, value in df_sheets.items():
-        zone = key
+        zone = key.strip().capitalize()
         list_gps = []
         for i, row in value.iterrows():
             flagGPS = False
@@ -59,6 +68,7 @@ def init_excel_to_df(path="../../data/taux_remplissage_comcom_nebbiu.xlsx"):
         columns=["nom", "zone", "coeff_touriste", "gps", "date", "remplissage"],
     )
     return df_result
+
 
 if __name__ == "__main__":
     main()
