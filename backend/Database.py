@@ -1,11 +1,9 @@
-from pathlib import Path
+from datetime import datetime
 
-import pandas as pd
 from dotenv import dotenv_values
-from icecream import colorize, ic
+from icecream import ic
 from pymongo import MongoClient
 
-from datetime import datetime
 
 class Database:
     def __init__(self, db_name="hackaton"):
@@ -25,26 +23,25 @@ class Database:
             print("Server not available\n")
 
         self.client = client
-    
-    
+
     def add_data_poubelle(self, id_zone, coef_tourist, densite, next_collection_date):
         collection = self.client.poubelle
-        
+
         # Création du document
         document = {
             "coef_touristes": coef_tourist,
             "densite": densite,
             "id_zone": id_zone,
-            "nextCollectionDate": datetime.strptime(next_collection_date, "%Y-%m-%d")
+            "nextCollectionDate": datetime.strptime(next_collection_date, "%Y-%m-%d"),
         }
 
         # Insertion du document dans la collection
         key = collection.insert_one(document)
         return key
-    
+
     def add_data_collecteur(self, id_zone, matricule, nom, username, password, role):
         collection = self.client.collecteur
-        
+
         # Création du document
         document = {
             "id_zone": id_zone,
@@ -52,112 +49,108 @@ class Database:
             "nom": nom,
             "username": username,
             "password": password,
-            "role": role
-        }
-
-        # Insertion du document dans la collection
-        key = collection.insert_one(document)
-        return key      
-    
-    def add_data_zone(self, id_zone, gps, densite, nb_poubelles):
-        collection = self.client.zone
-        
-        # Création du document
-        document = {
-            "id_zone": id_zone,
-            "gps": gps,
-            "densite": densite,
-            "nb_poubelles": nb_poubelles
+            "role": role,
         }
 
         # Insertion du document dans la collection
         key = collection.insert_one(document)
         return key
-    
+
+    def add_data_zone(self, id_zone, gps, densite, nb_poubelles):
+        collection = self.client.zone
+
+        # Création du document
+        document = {
+            "id_zone": id_zone,
+            "gps": gps,
+            "densite": densite,
+            "nb_poubelles": nb_poubelles,
+        }
+
+        # Insertion du document dans la collection
+        key = collection.insert_one(document)
+        return key
+
     def get_data_poubelle(self):
         collection = self.client.poubelle
         return collection.find()
+
     def get_data_zone(self):
         collection = self.client.zone
         return collection.find()
+
     def get_data_collecteur(self):
         collection = self.client.collecteur
         return collection.find()
-        
 
-    
     def get_data_poubelle_by_id(self, id):
         collection = self.client.poubelle
         return collection.find_one({"_id": id})
+
     def get_data_zone_by_id(self, id):
         collection = self.client.zone
         return collection.find_one({"_id": id})
+
     def get_data_collecteur_by_id(self, id):
         collection = self.client.collecteur
         return collection.find_one({"_id": id})
-    
 
-    
     def update_data_poubelle(self, id, coef_tourist, densite, next_collection_date):
         collection = self.client.poubelle
-        
+
         # Création du document
         document = {
             "coef_touristes": coef_tourist,
             "densite": densite,
-            "nextCollectionDate": datetime.strptime(next_collection_date, "%Y-%m-%d")
+            "nextCollectionDate": datetime.strptime(next_collection_date, "%Y-%m-%d"),
         }
 
         # Insertion du document dans la collection
         key = collection.update_one({"_id": id}, {"$set": document})
         return key
+
     def update_data_zone(self, id, gps, densite, nb_poubelles):
         collection = self.client.zone
-        
+
         # Création du document
-        document = {
-            "gps": gps,
-            "densite": densite,
-            "nb_poubelles": nb_poubelles
-        }
+        document = {"gps": gps, "densite": densite, "nb_poubelles": nb_poubelles}
 
         # Insertion du document dans la collection
         key = collection.update_one({"_id": id}, {"$set": document})
         return key
+
     def update_data_collecteur(self, id, matricule, nom, username, password, role):
         collection = self.client.collecteur
-        
+
         # Création du document
         document = {
             "matricule": matricule,
             "nom": nom,
             "username": username,
             "password": password,
-            "role": role
+            "role": role,
         }
 
         # Insertion du document dans la collection
         key = collection.update_one({"_id": id}, {"$set": document})
         return key
-    
+
     def delete_data_poubelle(self, id):
         collection = self.client.poubelle
-        return collection.delete_one({"_id": id})   
+        return collection.delete_one({"_id": id})
+
     def delete_data_zone(self, id):
         collection = self.client.zone
-        return collection.delete_one({"_id": id})  
+        return collection.delete_one({"_id": id})
+
     def delete_data_collecteur(self, id):
         collection = self.client.collecteur
         return collection.delete_one({"_id": id})
-    
+
     def get_data_poubelle_by_zone(self, id_zone):
         collection = self.client.poubelle
         return collection.find({"id_zone": id_zone})
-    
+
     def get_data_collecteur_by_zone(self, id_zone):
         collection = self.client.collecteur
         return collection.find({"id_zone": id_zone})
-    
-    
-    
-

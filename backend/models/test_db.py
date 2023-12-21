@@ -1,12 +1,12 @@
-from backend.Database import Database
-from icecream import colorize, ic
+from icecream import ic
 
-NAME_DB = "hackaton"
+from backend.Database import Database
+
 
 def main():
     db = Database()
     ic(db)
-    
+
 
 if __name__ == "__main__":
     main()
