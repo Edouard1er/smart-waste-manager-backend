@@ -10,7 +10,6 @@ class Database:
 
         # Provide the mongodb atlas url to connect python to mongodb using pymongo
         CONNEXION_STRING = config["CONNEXION_STRING"]
-        ic(CONNEXION_STRING)
 
         # Create a connection using MongoClient. You can import MongoClient or use pymongo.MongoClient
         client = MongoClient(CONNEXION_STRING)
