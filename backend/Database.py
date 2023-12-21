@@ -27,14 +27,14 @@ class Database:
         self.client = client
     
     
-    def add_data_poubelle(self, coef_tourist, densite, zone, next_collection_date):
+    def add_data_poubelle(self, id_zone, coef_tourist, densite, next_collection_date):
         collection = self.client.poubelle
         
         # Création du document
         document = {
             "coef_touristes": coef_tourist,
             "densite": densite,
-            "zone": zone,
+            "id_zone": id_zone,
             "nextCollectionDate": datetime.strptime(next_collection_date, "%Y-%m-%d")
         }
 
