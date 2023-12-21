@@ -3,16 +3,18 @@ from dotenv import dotenv_values
 from icecream import ic
 from pymongo import MongoClient
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 class Database:
     def __init__(self, db_name="hackaton"):
-        config = dotenv_values(".env")
+        CONNEXION_STRING = os.getenv("CONNEXION_STRING")
 
-        # Provide the mongodb atlas url to connect python to mongodb using pymongo
-        CONNEXION_STRING = config["CONNEXION_STRING"]
-
-        # Create a connection using MongoClient. You can import MongoClient or use pymongo.MongoClient
         client = MongoClient(CONNEXION_STRING)
+        mongo = client["hackaton"] 
 
         try:
             client.admin.command("ismaster")
@@ -20,7 +22,7 @@ class Database:
         except ConnectionError:
             print("Server not available\n")
 
-        self.client = client
+        self.client = mongo
 
     def add_data_poubelle(self, id_zone, coef_tourist, densite, next_collection_date):
         collection = self.client.poubelle
@@ -109,7 +111,7 @@ class Database:
         return collection.find()
 
     def get_data_collecteur(self):
-        collection = self.client.collecteur
+        collection = self.client.employe
         return collection.find()
         
 

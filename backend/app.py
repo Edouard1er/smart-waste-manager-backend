@@ -209,7 +209,8 @@ def delete_poubelle(poubelle_id):
 @app.route('/collecteurs', methods=['POST'])
 def add_collecteur():
     data = request.json
-    insert_collecteur = Database.add_data_collecteur(
+    myDb = Database()
+    insert_collecteur = myDb.add_data_collecteur(
         data.get('id_zone'),
         data.get('matricule'),
         data.get('nom'),
@@ -225,7 +226,8 @@ def add_collecteur():
 # Endpoint pour obtenir la liste de tous les collecteurs
 @app.route('/collecteurs', methods=['GET'])
 def get_all_collecteurs():
-    collecteurs = Database.get_data_collecteur()
+    myDb = Database()
+    collecteurs = myDb.get_data_collecteur()
     collecteur_list = []
     for collecteur in collecteurs:
         collecteur['_id'] = str(collecteur['_id'])
