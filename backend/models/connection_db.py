@@ -1,6 +1,8 @@
-from pymongo import MongoClient
 from dotenv import dotenv_values
-from icecream import ic, colorize
+from icecream import colorize, ic
+from pymongo import MongoClient
+
+NAME_DB = "hackaton"
 
 
 def main():
@@ -8,10 +10,10 @@ def main():
         outputFunction=lambda s: print(colorize(s) + "\n")
     )  # print debug
 
-    my_db = get_database("eboueur")
+    db = get_database(NAME_DB)
 
 
-def get_database(db_name=""):
+def get_database(db_name):
     """
     Connects to the MongoDB database specified by the db_name parameter.
 
@@ -32,7 +34,7 @@ def get_database(db_name=""):
 
     try:
         client.admin.command("ismaster")
-        print("connexion working")
+        print("connexion to db established !")
     except ConnectionError:
         print("Server not available")
 

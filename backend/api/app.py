@@ -1,6 +1,6 @@
-from redis import Redis
-from flask import Flask, render_template, request, jsonify
 import requests
+from flask import Flask, jsonify, render_template, request
+from redis import Redis
 
 app = Flask(__name__)
 redis = Redis(host="localhost", port=6379)
