@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template
 from redis import Redis
 
 app = Flask(__name__)
