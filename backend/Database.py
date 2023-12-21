@@ -111,7 +111,7 @@ class Database:
         return collection.find()
 
     def get_data_collecteur(self):
-        collection = self.client.employe
+        collection = self.client.collecteur
         return collection.find()
         
 

@@ -1,5 +1,6 @@
 
-from bson import ObjectId
+import json
+from bson import ObjectId, json_util
 from flask import Flask, render_template, request, jsonify
 import pymongo
 import requests
@@ -15,6 +16,8 @@ app = Flask(__name__)
 
 GOOGLE_MAPS_API_KEY = ''
 
+myDb = Database()
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -24,7 +27,7 @@ def index():
 @app.route('/historique', methods=['POST'])
 def add_historique():
     data = request.json
-    insert_historique = Database.add_data_historique(
+    insert_historique = myDb.add_data_historique(
         data.get('id_poubelle'),
         data.get('coef_touristes'),
         data.get('date'),
@@ -37,7 +40,7 @@ def add_historique():
 # Endpoint pour recuperer l'historique des collectes
 @app.route('/historique', methods=['GET'])
 def get_data_historique():
-    historique = Database.get_data_historique()
+    historique = myDb.get_data_historique()
     historique_list = []
     for collecte in historique:
         collecte['_id'] = str(collecte['_id'])
@@ -47,7 +50,7 @@ def get_data_historique():
 #Endpoint pour supprimer l'historique des collectes
 @app.route('/historique/<historique_id>', methods=['DELETE'])
 def delete_historique(historique_id):
-    result = Database.delete_data_historique(historique_id)
+    result = myDb.delete_data_historique(historique_id)
     if result.deleted_count > 0:
         return jsonify({'message': 'Historique supprimé avec succès'})
     return jsonify({'message': 'Historique non trouvé'}), 404
@@ -56,7 +59,7 @@ def delete_historique(historique_id):
 @app.route('/trajets', methods=['POST'])
 def add_trajet():
     data = request.json
-    insert_trajet = Database.add_data_trajet(
+    insert_trajet = myDb.add_data_trajet(
         data.get('id_collecteur'),
         data.get('id_poubelle'),
         data.get('date'),
@@ -69,7 +72,7 @@ def add_trajet():
 #Endpoint pour supprimer les trajets
 @app.route('/trajets/<trajet_id>', methods=['DELETE'])
 def delete_trajet(trajet_id):
-    result = Database.delete_data_trajet(trajet_id)
+    result = myDb.delete_data_trajet(trajet_id)
     if result.deleted_count > 0:
         return jsonify({'message': 'Trajet supprimé avec succès'})
     return jsonify({'message': 'Trajet non trouvé'}), 404
@@ -77,7 +80,7 @@ def delete_trajet(trajet_id):
 # Endpoint pour recuperer les trajets
 @app.route('/trajets', methods=['GET'])
 def get_data_trajets():
-    trajets = Database.get_data_trajets()
+    trajets = myDb.get_data_trajets()
     trajets_list = []
     for trajet in trajets:
         trajet['_id'] = str(trajet['_id'])
@@ -88,7 +91,7 @@ def get_data_trajets():
 @app.route('/zones', methods=['POST'])
 def add_zone():
     data = request.json
-    insert_zone = Database.add_data_zone(
+    insert_zone = myDb.add_data_zone(
         data.get('nom'),
         data.get('densité'),
         data.get('gps'),
@@ -102,7 +105,7 @@ def add_zone():
 # Endpoint pour obtenir les zones
 @app.route('/zones', methods=['GET'])
 def get_zones():
-    zones = Database.get_data_zone()
+    zones = myDb.get_data_zone()
     zone_list = []
     for zone in zones:
         zone['_id'] = str(zone['_id'])
@@ -113,7 +116,7 @@ def get_zones():
 # Endpoint pour obtenir une zone spécifique
 @app.route('/zones/<zone_id>', methods=['GET'])
 def get_zone(zone_id):
-    zone = Database.get_data_zone_by_id({'_id': ObjectId(zone_id)})
+    zone = myDb.get_data_zone_by_id({'_id': ObjectId(zone_id)})
     if zone:
         zone['_id'] = str(zone['_id'])
         return jsonify({'zone': zone})
@@ -124,7 +127,7 @@ def get_zone(zone_id):
 @app.route('/zones/<zone_id>', methods=['PUT'])
 def update_zone(zone_id):
     data = request.json
-    update_zone = Database.update_data_zone(
+    update_zone = myDb.update_data_zone(
         zone_id,
         data.get('nom'),
         data.get('population'),
@@ -141,7 +144,7 @@ def update_zone(zone_id):
 # Endpoint pour la suppression d'une zone
 @app.route('/zones/<zone_id>', methods=['DELETE'])
 def delete_zone(zone_id):
-    result = Database.delete_data_zone(zone_id)
+    result = myDb.delete_data_zone(zone_id)
     if result.deleted_count > 0:
         return jsonify({'message': 'Zone supprimée avec succès'})
     return jsonify({'message': 'Zone non trouvée'}), 404
@@ -152,7 +155,7 @@ def delete_zone(zone_id):
 @app.route('/poubelles', methods=['POST'])
 def add_poubelle():
     data = request.json
-    insert_poubelle = Database.add_data_poubelle(
+    insert_poubelle = myDb.add_data_poubelle(
         data.get('gps'),
         data.get('niveau_remplissage'),
         data.get('coefficient_touriste'),
@@ -165,17 +168,24 @@ def add_poubelle():
 # Endpoint pour obtenir les poubelles d'une zonze donnée
 @app.route('/zones/<zone_id>/poubelles', methods=['GET'])
 def get_poubelles(zone_id):
-    poubelles = Database.get_data_poubelle_by_zone(zone_id)
+    poubelles = myDb.get_data_poubelle_by_zone(zone_id)
     poubelle_list = []
     for poubelle in poubelles:
         poubelle['_id'] = str(poubelle['_id'])
         poubelle_list.append(poubelle)
     return jsonify({'poubelles': poubelle_list})
 
+# Endpoint pour obtenur les informations d'une poubelle donnée
+@app.route('/poubelles', methods=['GET'])
+def get_all_poubelles():
+    poubelles = myDb.get_data_poubelle()
+        
+    return json.loads(json_util.dumps(poubelles)) 
+
 #Endpoint pour obtenur les informations d'une poubelle donnée
 @app.route('/poubelles/<poubelle_id>', methods=['GET'])
 def get_poubelle(poubelle_id):
-    poubelle = Database.get_data_poubelle_by_id(poubelle_id)
+    poubelle = myDb.get_data_poubelle_by_id(poubelle_id)
     if poubelle:
         poubelle['_id'] = str(poubelle['_id'])
         return jsonify({'poubelle': poubelle})  
@@ -185,7 +195,7 @@ def get_poubelle(poubelle_id):
 @app.route('/poubelles/<poubelle_id>', methods=['PUT'])
 def update_poubelle(poubelle_id):
     data = request.json
-    update_poubelle = Database.update_data_poubelle(
+    update_poubelle = myDb.update_data_poubelle(
         poubelle_id,
         data.get('gps'),
         data.get('niveau_remplissage'),
@@ -200,7 +210,7 @@ def update_poubelle(poubelle_id):
 # Endapoint pour la suppression d'une poubelle
 @app.route('/poubelles/<poubelle_id>', methods=['DELETE'])
 def delete_poubelle(poubelle_id):
-    result = Database.delete_data_poubelle(poubelle_id)
+    result = myDb.delete_data_poubelle(poubelle_id)
     if result.deleted_count > 0:
         return jsonify({'message': 'Poubelle supprimée avec succès'})
     return jsonify({'message': 'Poubelle non trouvée'}), 404
@@ -209,7 +219,6 @@ def delete_poubelle(poubelle_id):
 @app.route('/collecteurs', methods=['POST'])
 def add_collecteur():
     data = request.json
-    myDb = Database()
     insert_collecteur = myDb.add_data_collecteur(
         data.get('id_zone'),
         data.get('matricule'),
@@ -219,6 +228,8 @@ def add_collecteur():
         data.get('password'),
         data.get('role'),
     )
+    
+    print("insert_collecteur" ,insert_collecteur)
     if insert_collecteur:
         return jsonify({'message': 'Collecteur ajouté avec succès'})
     return jsonify({'message': 'Erreur lors de l\'ajout du collecteur'}), 500
@@ -226,7 +237,6 @@ def add_collecteur():
 # Endpoint pour obtenir la liste de tous les collecteurs
 @app.route('/collecteurs', methods=['GET'])
 def get_all_collecteurs():
-    myDb = Database()
     collecteurs = myDb.get_data_collecteur()
     collecteur_list = []
     for collecteur in collecteurs:
@@ -237,7 +247,7 @@ def get_all_collecteurs():
 # Endpoint pour obtenir les informations d'un collecteur donné
 @app.route('/collecteurs/<collecteur_id>', methods=['GET'])
 def get_collecteur(collecteur_id):
-    collecteur = Database.get_data_collecteur_by_id(collecteur_id)
+    collecteur = myDb.get_data_collecteur_by_id(collecteur_id)
     if collecteur:
         collecteur['_id'] = str(collecteur['_id'])
         return jsonify({'collecteur': collecteur})
@@ -247,7 +257,7 @@ def get_collecteur(collecteur_id):
 @app.route('/collecteurs/<collecteur_id>', methods=['PUT'])
 def update_collecteur(collecteur_id):
     data = request.json
-    updated_data = Database.update_data_collecteur(
+    updated_data = myDb.update_data_collecteur(
         collecteur_id,
         data.get('matricule'),
         data.get('nom'),
@@ -262,7 +272,7 @@ def update_collecteur(collecteur_id):
 # Endpoint pour la suppression d'un collecteur
 @app.route('/collecteurs/<collecteur_id>', methods=['DELETE'])
 def delete_collecteur(collecteur_id):
-    result = Database.delete_data_collecteur(collecteur_id)
+    result = myDb.delete_data_collecteur(collecteur_id)
     if result.deleted_count > 0:
         return jsonify({'message': 'Collecteur supprimé avec succès'})
     return jsonify({'message': 'Collecteur non trouvé'}), 404
