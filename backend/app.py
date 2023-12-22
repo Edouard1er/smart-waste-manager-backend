@@ -4,8 +4,11 @@ import requests
 from bson import ObjectId, json_util
 from Database import Database
 from flask import Flask, jsonify, render_template, request
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+CORS(app)  
 
 
 GOOGLE_MAPS_API_KEY = ""
@@ -41,7 +44,7 @@ def get_data_historique():
     for collecte in historique:
         collecte["_id"] = str(collecte["_id"])
         historique_list.append(collecte)
-    return jsonify({"historique": historique_list})
+    return jsonify(historique_list)
 
 
 @app.route("/historique/<historique_id>", methods=["GET"])
@@ -49,7 +52,7 @@ def get_data_historique_by_id(id):
     historique = myDb.get_data_historique_by_id(id)
     if historique:
         historique["_id"] = str(historique["_id"])
-        return jsonify({"historique": historique})
+        return jsonify(historique)
     return jsonify({"message": "Historique non trouvé"}), 404
 
 
@@ -72,12 +75,12 @@ def update_historique(historique_id):
 
 
 # Endpoint pour supprimer l'historique des collectes
-@app.route("/historique/<historique_id>", methods=["DELETE"])
-def delete_historique(historique_id):
-    result = myDb.delete_data_historique(historique_id)
-    if result.deleted_count > 0:
-        return jsonify({"message": "Historique supprimé avec succès"})
-    return jsonify({"message": "Historique non trouvé"}), 404
+# @app.route("/historique/<historique_id>", methods=["DELETE"])
+# def delete_historique(historique_id):
+#     result = myDb.delete_data_historique(historique_id)
+#     if result.deleted_count > 0:
+#         return jsonify({"message": "Historique supprimé avec succès"})
+#     return jsonify({"message": "Historique non trouvé"}), 404
 
 
 # Endpoint pour ajouter un trajet
@@ -104,41 +107,41 @@ def delete_trajet(trajet_id):
     return jsonify({"message": "Trajet non trouvé"}), 404
 
 
-@app.route("/trajets/<trajet_id>", methods=["PUT"])
-def update_trajet(trajet_id):
-    data = request.json
-    update_trajet = myDb.update_data_trajet(
-        trajet_id,
-        data.get("id_collecteur"),
-        data.get("id_poubelle"),
-        data.get("date"),
-        data.get("niveau_remplissage"),
-    )
-    if insert_trajet:
-        return jsonify({"message": "Trajet ajouté avec succès"})
-    return jsonify({"message": "Erreur lors de l'ajout du trajet"}), 500
+# @app.route("/trajets/<trajet_id>", methods=["PUT"])
+# def update_trajet(trajet_id):
+#     data = request.json
+#     update_trajet = myDb.update_data_trajet(
+#         trajet_id,
+#         data.get("id_collecteur"),
+#         data.get("id_poubelle"),
+#         data.get("date"),
+#         data.get("niveau_remplissage"),
+#     )
+#     if update_trajet:
+#         return jsonify({"message": "Trajet ajouté avec succès"})
+#     return jsonify({"message": "Erreur lors de l'ajout du trajet"}), 500
 
 
 # Endpoint pour supprimer les trajets
-@app.route("/trajets/<trajet_id>", methods=["DELETE"])
-def delete_trajet(trajet_id):
-    result = myDb.delete_data_trajet(trajet_id)
-    if result.deleted_count > 0:
-        return jsonify({"message": "Trajet supprimé avec succès"})
-    return jsonify({"message": "Trajet non trouvé"}), 404
+# @app.route("/trajets/<trajet_id>", methods=["DELETE"])
+# def delete_trajet(trajet_id):
+#     result = myDb.delete_data_trajet(trajet_id)
+#     if result.deleted_count > 0:
+#         return jsonify({"message": "Trajet supprimé avec succès"})
+#     return jsonify({"message": "Trajet non trouvé"}), 404
 
 
 @app.route("/trajets/<trajet_id>", methods=["PUT"])
 def update_trajet(trajet_id):
     data = request.json
-    update_trajet = myDb.update_data_trajet(
+    update_trajet_ = myDb.update_data_trajet(
         trajet_id,
         data.get("id_collecteur"),
         data.get("id_poubelle"),
         data.get("date"),
         data.get("niveau_remplissage"),
     )
-    if update_trajet.modified_count > 0:
+    if update_trajet_.modified_count > 0:
         return jsonify({"message": "Trajet mis à jour avec succès"})
     return (
         jsonify({"message": "Trajet non trouvé ou aucune modification effectuée"}),
@@ -154,25 +157,16 @@ def get_data_trajets():
     for trajet in trajets:
         trajet["_id"] = str(trajet["_id"])
         trajets_list.append(trajet)
-    return jsonify({"trajets": trajets_list})
+    return jsonify(trajets_list)
 
 
 @app.route("/trajets/<trajet_id>", methods=["GET"])
-def get_data_trajet_by_id(id):
-    trajet = myDb.get_data_trajet_by_id(id)
+def get_data_trajet_by_id(trajet_id):
+    trajet = myDb.get_data_trajet_by_id(trajet_id)
     if trajet:
         trajet["_id"] = str(trajet["_id"])
-        trajets_list.append(trajet)
-    return jsonify({"trajets": trajets_list})
+    return jsonify(trajet)
 
-
-@app.route("/trajets/<trajet_id>", methods=["GET"])
-def get_data_trajet_by_id(id):
-    trajet = myDb.get_data_trajet_by_id(id)
-    if trajet:
-        trajet["_id"] = str(trajet["_id"])
-        return jsonify({"trajet": trajet})
-    return jsonify({"message": "Trajet non trouvé"}), 404
 
 
 # Endpoint pour ajouter une zone
@@ -207,7 +201,7 @@ def get_zone(zone_id):
     zone = myDb.get_data_zone_by_id({"_id": ObjectId(zone_id)})
     if zone:
         zone["_id"] = str(zone["_id"])
-        return jsonify({"zone": zone})
+        return jsonify(zone)
     return jsonify({"message": "Zone non trouvée"}), 404
 
 
@@ -262,12 +256,19 @@ def get_poubelles(zone_id):
     for poubelle in poubelles:
         poubelle["_id"] = str(poubelle["_id"])
         poubelle_list.append(poubelle)
-    return jsonify({"poubelles": poubelle_list})
+    return jsonify(poubelle_list)
 
 
 # Endpoint pour obtenur les informations d'une poubelle donnée
-@app.route("/poubelles", methods=["GET"])
+# @app.route("/poubelles", methods=["GET"])
 # Endpoint pour obtenur la liste des poubelles
+
+@app.route("/poubelles/historique/<zone_id>/<date_historique>", methods=["GET"])
+def get_all_poubelles_by_zone_date(zone_id, date_historique):
+    poubelles = myDb.get_data_poubelle_by_date_historique_and_zone(zone_id, date_historique)
+
+    return json.loads(json_util.dumps(poubelles))
+
 @app.route("/poubelles", methods=["GET"])
 def get_all_poubelles():
     poubelles = myDb.get_data_poubelle()
@@ -281,7 +282,7 @@ def get_poubelle(poubelle_id):
     poubelle = myDb.get_data_poubelle_by_id(poubelle_id)
     if poubelle:
         poubelle["_id"] = str(poubelle["_id"])
-        return jsonify({"poubelle": poubelle})
+        return jsonify(poubelle)
     return jsonify({"message": "Poubelle non trouvée"}), 404
 
 
@@ -327,8 +328,9 @@ def add_collecteur():
     )
 
     print("insert_collecteur", insert_collecteur)
+    data["_id"] = str(insert_collecteur.inserted_id)
     if insert_collecteur:
-        return jsonify({"message": "Collecteur ajouté avec succès"})
+        return jsonify(data)
     return jsonify({"message": "Erreur lors de l'ajout du collecteur"}), 500
 
 
@@ -340,7 +342,7 @@ def get_all_collecteurs():
     for collecteur in collecteurs:
         collecteur["_id"] = str(collecteur["_id"])
         collecteur_list.append(collecteur)
-    return jsonify({"collecteurs": collecteur_list})
+    return jsonify(collecteur_list)
 
 
 # Endpoint pour obtenir les informations d'un collecteur donné
@@ -349,8 +351,17 @@ def get_collecteur(collecteur_id):
     collecteur = myDb.get_data_collecteur_by_id(collecteur_id)
     if collecteur:
         collecteur["_id"] = str(collecteur["_id"])
-        return jsonify({"collecteur": collecteur})
+        return jsonify(collecteur)
     return jsonify({"message": "Collecteur non trouvé"}), 404
+
+
+# @app.route("/collecteurs/zone/<id_zone>", methods=["GET"])
+# def get_data_collecteur_by_zone(id_zone):
+#     collecteur = myDb.get_data_collecteur_by_zone(id_zone)
+#     if collecteur:
+#         collecteur["_id"] = str(collecteur["_id"])
+#         return jsonify({"collecteur": collecteur})
+#     return jsonify({"message": "Collecteur non trouvé"}), 404
 
 
 @app.route("/collecteurs/zone/<id_zone>", methods=["GET"])
@@ -358,16 +369,7 @@ def get_data_collecteur_by_zone(id_zone):
     collecteur = myDb.get_data_collecteur_by_zone(id_zone)
     if collecteur:
         collecteur["_id"] = str(collecteur["_id"])
-        return jsonify({"collecteur": collecteur})
-    return jsonify({"message": "Collecteur non trouvé"}), 404
-
-
-@app.route("/collecteurs/zone/<id_zone>", methods=["GET"])
-def get_data_collecteur_by_zone(id_zone):
-    collecteur = myDb.get_data_collecteur_by_zone(id_zone)
-    if collecteur:
-        collecteur["_id"] = str(collecteur["_id"])
-        return jsonify({"collecteur": collecteur})
+        return jsonify(collecteur)
     return jsonify({"message": "Collecteur non trouvé"}), 404
 
 

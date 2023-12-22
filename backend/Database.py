@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from bson import ObjectId
 
 from dotenv import load_dotenv
 from icecream import ic  # noqa: F401
@@ -10,7 +11,7 @@ load_dotenv()
 
 class Database:
     def __init__(self, db_name="hackaton"):
-        CONNEXION_STRING = os.getenv("CONNEXION_STRING")
+        CONNEXION_STRING = "mongodb+srv://silvanshine:g5Kgw38pHWJEDMlO@cluster-hackaton-sitec.yhj9j2s.mongodb.net/"
 
         client = MongoClient(CONNEXION_STRING)
         mongo = client["hackaton"]
@@ -111,6 +112,7 @@ class Database:
 
     def get_data_poubelle(self):
         collection = self.client.poubelle
+        print("eddy",list(collection.find()))
         return collection.find()
 
     def get_data_zone(self):
@@ -161,6 +163,8 @@ class Database:
         self, id, matricule, nom, prenom, username, password, role
     ):
         collection = self.client.collecteur
+        
+        _id = ObjectId(id)
 
         # Création du document
         document = {
@@ -173,7 +177,7 @@ class Database:
         }
 
         # Insertion du document dans la collection
-        key = collection.update_one({"_id": id}, {"$set": document})
+        key = collection.update_one({"_id": _id}, {"$set": document})
         return key
 
     def delete_data_poubelle(self, id):
@@ -186,7 +190,8 @@ class Database:
 
     def delete_data_collecteur(self, id):
         collection = self.client.collecteur
-        return collection.delete_one({"_id": id})
+        _id = ObjectId(id)
+        return collection.delete_one({"_id": _id})
 
     def get_data_poubelle_by_zone(self, id_zone):
         collection = self.client.poubelle
@@ -195,3 +200,56 @@ class Database:
     def get_data_collecteur_by_zone(self, id_zone):
         collection = self.client.collecteur
         return collection.find({"id_zone": id_zone})
+    
+    def get_data_poubelle_by_date_historique_and_zone(self, id_zone, date_historique):
+        collection_poubelle = self.client.poubelle
+        collection_historique = self.client.historiquePoubelle
+
+        date_historique = datetime.strptime(date_historique, "%Y-%m-%d")
+        id_zone = ObjectId(id_zone)
+        
+        # Agrégation entre les collections
+        
+        # result = collection_poubelle.find_one({"id_zone": id_zone})
+        result = collection_poubelle.aggregate([
+            {
+                "$match": {
+                    "id_zone": id_zone
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "historiquePoubelle",
+                    "localField": "_id",
+                    "foreignField": "id_poubelle",
+                    "as": "historique"
+                }
+            },
+            {
+                "$unwind": {
+                    "path": "$historique",
+                    "preserveNullAndEmptyArrays": True
+                }
+            },
+            {
+                "$match": {
+                    "historique.date": date_historique
+                }
+            },
+            {
+                "$project": {
+                    "_id": 1,
+                    "coef_touristes": 1,
+                    "densite": 1,
+                    "id_zone": 1,
+                    "gps": 1,
+                    "nextCollectionDate": 1,
+                    "historique.coef_touristes": 1,
+                    "historique.date": 1,
+                    "historique.niveau_remplissage": 1
+                }
+            }
+        ])
+        
+
+        return list(result)
